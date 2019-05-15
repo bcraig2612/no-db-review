@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import Meme from "./components/Memes/Meme";
 import "./App.css";
 
 export default class App extends Component {
@@ -11,6 +12,7 @@ export default class App extends Component {
     };
     this.getMemesFromExternalApi = this.getMemesFromExternalApi.bind(this);
     this.getMyMemeCollection = this.getMyMemeCollection.bind(this);
+    this.updateMemeById = this.updateMemeById.bind(this);
   }
 
   componentDidMount() {
@@ -43,27 +45,43 @@ export default class App extends Component {
     });
   }
 
+  updateMemeById(id, name) {
+    console.log(id, name);
+    axios.put(`/api/dem_memes/${id}`, {}).then(response => {
+      this.setState({
+        memeCollection: response.data
+      });
+    });
+  }
+
   render() {
     const { memeCollection, externalMemes } = this.state;
 
     const mappedMemeCollection = memeCollection.map(element => {
       return (
-        <div key={element.id}>
-          <span>{element.name}</span>
-          <img src={element.url} alt="" />
-        </div>
+        <Meme
+          key={element.id}
+          inCollection={true}
+          name={element.name}
+          url={element.url}
+          id={element.id}
+          updateMemeById={this.updateMemeById}
+          action={() => console.log("delete")}
+          label="Delete"
+        />
       );
     });
 
     const mappedExternalMemes = externalMemes.map(element => {
       return (
-        <div key={element.id}>
-          <span>{element.name}</span>
-          <img src={element.url} alt="" />
-          <button onClick={() => this.postMemeToCollection(element)}>
-            Add Meme
-          </button>
-        </div>
+        <Meme
+          key={element.id}
+          inCollection={false}
+          name={element.name}
+          url={element.url}
+          action={() => this.postMemeToCollection(element)}
+          label="Add Meme"
+        />
       );
     });
     return (
